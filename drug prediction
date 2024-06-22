@@ -1,0 +1,136 @@
+#importing libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+#importing the dataset
+data=pd.read_csv(r"C:\Users\LENOVO\Downloads\drug200.csv")
+
+data.head()
+
+# EDA
+
+#info
+data.info()
+
+#Statistical insights
+data.describe()
+
+#Checking for null values, if any
+data.isnull().sum()
+
+No null values in the dataset
+
+#Checking if the dataset is balanced or not
+data["Drug"].value_counts()
+
+Imbalanced dataset
+
+#Data visualization
+a=sns.countplot(data=data,x=data["Drug"])
+for i in a.containers:
+    a.bar_label(i)
+
+dfc.columns()
+
+sns.scatterplot(data=data_copy,x="Sex",y="SepalWidthCm",hue="Drug")
+
+
+
+
+
+# Feature Engineering
+
+#Extracting feature variables and class label
+fv=data.iloc[:,0:-1]
+cv=data.iloc[:,-1]
+
+fv
+
+
+
+cv
+
+fv.corr()
+
+#Checking if the numerical feature variables following Gaussian distribution or not
+
+import scipy.stats as ss
+
+ss.probplot(fv["Age"], dist="norm",fit=True , plot=plt)
+plt.show()
+
+ss.probplot(fv["Na_to_K"], dist="norm",fit=True , plot=plt)
+plt.show()
+
+#importing required libraries to divide the dataset into train,test,split
+from sklearn.model_selection import train_test_split
+
+#Dividing the dataset to train,test
+x_train,x_test,y_train,y_test=train_test_split(fv,cv,test_size=0.2,stratify=cv,random_state=1)
+
+#Importing label encoder
+from sklearn.preprocessing import LabelEncoder
+
+lb=LabelEncoder()
+
+
+
+x_train["Sex"]=lb.fit_transform(x_train["Sex"])
+x_test["Sex"]=lb.transform(x_test["Sex"])
+
+x_train["Cholesterol"]=lb.fit_transform(x_train["Cholesterol"])
+x_test["Cholesterol"]=lb.transform(x_test["Cholesterol"])
+
+
+x_train["BP"]=lb.fit_transform(x_train["BP"])
+x_test["BP"]=lb.transform(x_test["BP"])
+
+y_train=lb.fit_transform(y_train)
+
+
+y_test=lb.transform(y_test)
+
+x_train
+
+x_test
+
+#Chnagingn the data types
+#x_train["Sex"]=x_train["Sex"].astype("object")
+#x_train["Cholesterol"]=x_train["Cholesterol"].astype("object")
+#x_train["BP"]=x_train["BP"].astype("object")
+
+#x_test["Sex"]=x_test["Sex"].astype("object")
+#x_test["Cholesterol"]=x_test["Cholesterol"].astype("object")
+#x_test["BP"]=x_test["BP"].astype("object")
+
+x_train.info()
+
+#using functional transformation
+from sklearn.preprocessing import FunctionTransformer , PowerTransformer
+
+ft=FunctionTransformer(np.divide)
+x_train["Age"]=ft.fit_transform(x_train["Age"])
+ss.probplot(x_train["Age"], dist="norm",fit=True , plot=plt)
+plt.show()
+
+ft=FunctionTransformer(np.log1p)
+x_train["Na_to_K"]=ft.fit_transform(x_train["Na_to_K"])
+ss.probplot(x_train["Na_to_K"], dist="norm",fit=True , plot=plt)
+plt.show()
+
+#Using Mixed naive bayes
+
+from mixed_naive_bayes import MixedNB
+
+mnb=MixedNB(categorical_features=[1,2,3])
+
+a=mnb.fit(x_train,y_train)
+
+pred_y=a.predict(x_test)
+
+#Importing accuracy_score to check the accuracy of the model
+from sklearn.metrics import accuracy_score
+accuracy_score(y_test,pred_y)
+
